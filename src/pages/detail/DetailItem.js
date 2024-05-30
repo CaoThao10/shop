@@ -50,7 +50,7 @@ const contentStyle = {
   background: "#364d79",
 };
 
-const DetailItem = () => {
+const DetailItem = ({ title }) => {
   const onChangeKey = (key) => {
     console.log(key);
   };
@@ -60,81 +60,101 @@ const DetailItem = () => {
     setValue(e.target.value);
   };
   return (
-    <div className="mx-[200px] mt-[50px] flex gap-5">
-      <div className="w-[500px] h-[400px]">
-        <Carousel arrows infinite={false}>
-          <div>
-            <h3 style={contentStyle}>
-              <img src="dl1.jpeg" alt="" />
-            </h3>
-          </div>
-          <div>
-            <h3 style={contentStyle}>
-              <img src="dl1-2.jpeg" alt="" />
-            </h3>
-          </div>
-          <div>
-            <h3 style={contentStyle}>
-              <img src="dl1-3.jpeg" alt="" />
-            </h3>
-          </div>
-          <div>
-            <h3 style={contentStyle}>
-              <img src="dl1-4.jpeg" alt="" />
-            </h3>
-          </div>
-        </Carousel>
+    <div className="mx-[200px] mt-[50px]">
+      <div className="my-10">
+        <a className="flex  items-center" href="/work">
+          {" "}
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M4 10L13 19L14.4 17.5L7 10L14.4 2.5L13 1L4 10Z"
+              fill="black"
+            />
+          </svg>
+          {title}
+        </a>
       </div>
-      <div className="flex flex-col gap-3 w-[600px]">
-        <h3>Chân váy vặn xẻ lưới</h3>
-        <Rate disabled defaultValue={5} />
-        <h3>Giá: 500.000đ</h3>
-        <svg
-          width="300"
-          height="2"
-          viewBox="0 0 2195 2"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <line y1="1" x2="2195" y2="1" stroke="black" stroke-width="2" />
-        </svg>
-        <div className="flex gap-3  items-center">
-          <h3>Màu sắc:</h3>
-          <Radio.Group onChange={onChange} value={value}>
-            <Radio value={1}>Trắng</Radio>
-            <Radio value={2}>Đen</Radio>
-            <Radio value={3}>Nâu</Radio>
-          </Radio.Group>
+      <div className=" flex  gap-5">
+        <div className="w-[500px] h-[400px]">
+          <Carousel arrows infinite={false}>
+            <div>
+              <h3 style={contentStyle}>
+                <img src="dl1.jpeg" alt="" />
+              </h3>
+            </div>
+            <div>
+              <h3 style={contentStyle}>
+                <img src="dl1-2.jpeg" alt="" />
+              </h3>
+            </div>
+            <div>
+              <h3 style={contentStyle}>
+                <img src="dl1-3.jpeg" alt="" />
+              </h3>
+            </div>
+            <div>
+              <h3 style={contentStyle}>
+                <img src="dl1-4.jpeg" alt="" />
+              </h3>
+            </div>
+          </Carousel>
         </div>
-        <div className="flex gap-3  items-center">
-          <h3>Kích thước:</h3>
-          <Radio.Group onChange={onChange} value={value}>
-            <Radio value={1}>S</Radio>
-            <Radio value={2}>M</Radio>
-            <Radio value={3}>L</Radio>
-            <Radio value={4}>XL</Radio>
-          </Radio.Group>
-        </div>
-        <div className="flex gap-3  items-center">
-          <h3>Số lượng:</h3>
-          <InputNumber
-            min={1}
-            max={10}
-            defaultValue={3}
-            onChange={onChangeNum}
+        <div className="flex flex-col gap-3 w-[600px]">
+          <h3>Chân váy vặn xẻ lưới</h3>
+          <Rate disabled defaultValue={5} />
+          <h3>Giá: 500.000đ</h3>
+          <svg
+            width="300"
+            height="2"
+            viewBox="0 0 2195 2"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <line y1="1" x2="2195" y2="1" stroke="black" stroke-width="2" />
+          </svg>
+          <div className="flex gap-3  items-center">
+            <h3>Màu sắc:</h3>
+            <Radio.Group onChange={onChange} value={value}>
+              <Radio value={1}>Trắng</Radio>
+              <Radio value={2}>Đen</Radio>
+              <Radio value={3}>Nâu</Radio>
+            </Radio.Group>
+          </div>
+          <div className="flex gap-3  items-center">
+            <h3>Kích thước:</h3>
+            <Radio.Group onChange={onChange} value={value}>
+              <Radio value={1}>S</Radio>
+              <Radio value={2}>M</Radio>
+              <Radio value={3}>L</Radio>
+              <Radio value={4}>XL</Radio>
+            </Radio.Group>
+          </div>
+          <div className="flex gap-3  items-center">
+            <h3>Số lượng:</h3>
+            <InputNumber
+              min={1}
+              max={10}
+              defaultValue={3}
+              onChange={onChangeNum}
+            />
+          </div>
+          <div className="flex gap-3">
+            <HeartOutlined />
+            <button className=" px-2 py-1 bg-[#fdc8f7] rounded-lg">
+              Thêm giỏ hàng
+            </button>
+          </div>
+          <Collapse
+            items={items}
+            defaultActiveKey={["1"]}
+            onChange={onChangeKey}
           />
         </div>
-        <div className="flex gap-3">
-          <HeartOutlined />
-          <button className=" px-2 py-1 bg-[#fdc8f7] rounded-lg">
-            Thêm giỏ hàng
-          </button>
-        </div>
-        <Collapse
-          items={items}
-          defaultActiveKey={["1"]}
-          onChange={onChangeKey}
-        />
       </div>
     </div>
   );

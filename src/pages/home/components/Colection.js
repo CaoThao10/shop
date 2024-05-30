@@ -30,10 +30,10 @@ const Colection = () => {
           <div>SƯU TẬP HÈ 2024</div>
         </div>
         <div className="grid grid-cols-4 gap-5 mt-10 ">
-          <ItemColection url="/dc1.jpeg" />
-          <ItemColection url="/dt2.webp" />
-          <ItemColection url="/dt3.webp" />
-          <ItemColection url="/dc3.jpeg" />
+          <ItemColection link="/detail" url="/dc1.jpeg" />
+          <ItemColection link="/detail" url="/dt2.webp" />
+          <ItemColection link="/detail" url="/dt3.webp" />
+          <ItemColection link="/detail" url="/dc3.jpeg" />
         </div>
         <div className="mt-10">
           <button className="border border-gray-300 rounded-full px-2 py-1 ">

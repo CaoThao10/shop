@@ -1,6 +1,6 @@
 import React from "react";
 
-const Search = () => {
+const Search = ({ title }) => {
   return (
     <div className="mx-[200px] mt-[50px]">
       <div className="flex gap-1 items-center">
@@ -17,7 +17,7 @@ const Search = () => {
             fill="black"
           />
         </svg>
-        <a href="/work">Đồ đi làm</a>
+        <a href="/work">{title}</a>
       </div>
       <div className="flex gap-3 w-full justify-center mt-5">
         <input

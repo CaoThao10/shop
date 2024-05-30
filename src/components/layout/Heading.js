@@ -16,7 +16,7 @@ const Heading = () => {
       <div className="h-[30px] flex justify-center items-center gap-8 text-[#000] text-lg font-semibold">
         <Link to="/">Trang chủ</Link>
         <Link to="/work">Đồ đi làm</Link>
-        <Link to="/about">Đồ đi tiệc</Link>
+        <Link to="/party">Đồ đi tiệc</Link>
         <Link to="/about">Đồ đi chơi</Link>
         <Link to="/about">Tất cả sản phẩm</Link>
         <Link to="/about">Liên hệ</Link>

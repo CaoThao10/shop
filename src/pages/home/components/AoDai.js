@@ -30,10 +30,10 @@ const AoDai = () => {
           <div>THÁNG 6 - 2024</div>
         </div>
         <div className="grid grid-cols-4 gap-5 mt-10">
-          <ItemColection url="/dl1.jpeg" />
-          <ItemColection url="/dc4.jpeg" />
-          <ItemColection url="/dt4.jpg" />
-          <ItemColection url="/5.jpeg" />
+          <ItemColection link="/detail" url="/dl1.jpeg" />
+          <ItemColection link="/detail" url="/dc4.jpeg" />
+          <ItemColection link="/detail" url="/dt4.jpg" />
+          <ItemColection link="/detail" url="/5.jpeg" />
         </div>
         <div className="mt-10">
           <button className="border border-gray-300 rounded-full px-2 py-1 ">

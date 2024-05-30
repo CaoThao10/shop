@@ -1,16 +1,17 @@
 import React from "react";
 import Heading from "../../components/layout/Heading";
 import Search from "../../components/Search";
-import ListItemWork from "./ListItemWork";
 
-const WorkPage = () => {
+import ListItemParty from "./ListItemParty";
+
+const PartyPage = () => {
   return (
     <>
       <Heading></Heading>
-      <Search title="Đồ đi làm"></Search>
-      <ListItemWork></ListItemWork>
+      <Search title="Đồ đi tiệc"></Search>
+      <ListItemParty></ListItemParty>
     </>
   );
 };
 
-export default WorkPage;
+export default PartyPage;
