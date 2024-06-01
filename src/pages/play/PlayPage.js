@@ -1,19 +1,18 @@
 import React from "react";
 import Heading from "../../components/layout/Heading";
 import Search from "../../components/Search";
-
-import ListItemParty from "./ListItemParty";
+import ListItemPlay from "./ListItemPlay";
 import Footerr from "../../components/layout/Footerr";
 
-const PartyPage = () => {
+const PlayPage = () => {
   return (
     <>
       <Heading></Heading>
-      <Search url="/party" title="Đồ đi tiệc"></Search>
-      <ListItemParty></ListItemParty>
+      <Search url="/play" title="Đồ đi chơi"></Search>
+      <ListItemPlay></ListItemPlay>
       <Footerr></Footerr>
     </>
   );
 };
 
-export default PartyPage;
+export default PlayPage;

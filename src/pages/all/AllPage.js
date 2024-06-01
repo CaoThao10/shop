@@ -1,19 +1,18 @@
 import React from "react";
 import Heading from "../../components/layout/Heading";
 import Search from "../../components/Search";
-
-import ListItemParty from "./ListItemParty";
+import ListAllItem from "./ListAllItem";
 import Footerr from "../../components/layout/Footerr";
 
-const PartyPage = () => {
+const AllPage = () => {
   return (
     <>
       <Heading></Heading>
-      <Search url="/party" title="Đồ đi tiệc"></Search>
-      <ListItemParty></ListItemParty>
+      <Search url="/all" title="Tất cả sản phẩm"></Search>
+      <ListAllItem></ListAllItem>
       <Footerr></Footerr>
     </>
   );
 };
 
-export default PartyPage;
+export default AllPage;

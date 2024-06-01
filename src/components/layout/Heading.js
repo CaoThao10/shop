@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Heading = () => {
   return (
-    <div className="flex justify-between items-center px-[200px]">
+    <div className="fixed top-0 left-0 right-0 flex justify-between items-center px-[200px] bg-white shadow-md z-50">
       <div className="h-[80px] flex justify-center items-center gap-5">
         <Link to="/">
           <img
@@ -17,9 +17,9 @@ const Heading = () => {
         <Link to="/">Trang chủ</Link>
         <Link to="/work">Đồ đi làm</Link>
         <Link to="/party">Đồ đi tiệc</Link>
-        <Link to="/about">Đồ đi chơi</Link>
-        <Link to="/about">Tất cả sản phẩm</Link>
-        <Link to="/about">Liên hệ</Link>
+        <Link to="/play">Đồ đi chơi</Link>
+        <Link to="/all">Tất cả sản phẩm</Link>
+        {/* <Link to="/about">Liên hệ</Link> */}
         <Link to="/sign-up">Đăng ký</Link>
       </div>
     </div>

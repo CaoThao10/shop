@@ -3,6 +3,7 @@ import Heading from "../../components/layout/Heading";
 import Banner from "./components/Banner";
 import Colection from "./components/Colection";
 import AoDai from "./components/AoDai";
+import Footerr from "../../components/layout/Footerr";
 
 const HomePage = () => {
   return (
@@ -11,6 +12,7 @@ const HomePage = () => {
       <Banner></Banner>
       <Colection></Colection>
       <AoDai></AoDai>
+      <Footerr></Footerr>
     </>
   );
 };

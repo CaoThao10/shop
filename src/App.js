@@ -1,6 +1,6 @@
 import "./App.css";
 import { AuthProvider } from "./contexts/auth-context";
-import AboutPage from "./pages/about/AboutPage";
+
 import AllColectionPage from "./pages/allColection/AllColectionPage";
 import HomePage from "./pages/home/HomePage";
 // import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -10,6 +10,9 @@ import SignUpPage from "./pages/signup/SignUpPage";
 import WorkPage from "./pages/work/WorkPage";
 import DetailPage from "./pages/detail/DetailPage";
 import PartyPage from "./pages/party/PartyPage";
+import PlayPage from "./pages/play/PlayPage";
+import AllPage from "./pages/all/AllPage";
+import AllNewItem from "./pages/allColection/AllNewItem";
 
 function App() {
   return (
@@ -21,11 +24,14 @@ function App() {
           <Route path="/sign-up" element={<SignUpPage></SignUpPage>} />
           <Route path="/work" element={<WorkPage></WorkPage>} />
           <Route path="/party" element={<PartyPage></PartyPage>} />
+          <Route path="/play" element={<PlayPage></PlayPage>} />
+          <Route path="/all" element={<AllPage></AllPage>} />
           <Route path="/detail" element={<DetailPage></DetailPage>} />
           <Route
             path="/all-colection"
             element={<AllColectionPage></AllColectionPage>}
           />
+          <Route path="/all-new" element={<AllNewItem></AllNewItem>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
