@@ -13,6 +13,9 @@ import PartyPage from "./pages/party/PartyPage";
 import PlayPage from "./pages/play/PlayPage";
 import AllPage from "./pages/all/AllPage";
 import AllNewItem from "./pages/allColection/AllNewItem";
+import ManagePage from "./components/Manage/ManagePage";
+import ListItem from "./components/Manage/ListItem";
+import OderManage from "./components/Manage/OderManage";
 
 function App() {
   return (
@@ -26,12 +29,18 @@ function App() {
           <Route path="/party" element={<PartyPage></PartyPage>} />
           <Route path="/play" element={<PlayPage></PlayPage>} />
           <Route path="/all" element={<AllPage></AllPage>} />
+          {/* <Route path="/manage" element={<ManagePage></ManagePage>} /> */}
           <Route path="/detail" element={<DetailPage></DetailPage>} />
           <Route
             path="/all-colection"
             element={<AllColectionPage></AllColectionPage>}
           />
           <Route path="/all-new" element={<AllNewItem></AllNewItem>} />
+
+          <Route path="/manage" element={<ManagePage />}>
+            <Route path="danh-sach-san-pham" element={<ListItem />} />
+            <Route path="don-dat" element={<OderManage />} />
+          </Route>
         </Routes>
       </AuthProvider>
     </BrowserRouter>

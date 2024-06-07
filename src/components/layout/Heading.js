@@ -19,7 +19,7 @@ const Heading = () => {
         <Link to="/party">Đồ đi tiệc</Link>
         <Link to="/play">Đồ đi chơi</Link>
         <Link to="/all">Tất cả sản phẩm</Link>
-        {/* <Link to="/about">Liên hệ</Link> */}
+        <Link to="/manage">Quản lý</Link>
         <Link to="/sign-up">Đăng ký</Link>
       </div>
     </div>
