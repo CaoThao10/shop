@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   // AppstoreOutlined,
   ContainerOutlined,
   DesktopOutlined,
   PieChartOutlined,
 } from "@ant-design/icons";
-import { Menu, message } from "antd";
+import { Menu } from "antd";
 import { Outlet, useNavigate } from "react-router-dom";
-// import "../index.css";
-// import HeadingAd from "./layout/HeadingAd";
 
 function getItem(label, key, icon, children, type) {
   return {
@@ -21,18 +19,7 @@ function getItem(label, key, icon, children, type) {
 }
 
 const ManagePage = () => {
-  const [dataUser, setDataUser] = useState(null);
-  //   useEffect(() => {
-  //     const localStorageData = JSON?.parse(localStorage?.getItem("user"));
-  //     if (localStorageData?.role === "user") {
-  //       message.error("Bạn không có quyền truy cập vào trang này");
-  //       navigate("/");
-  //     } else if (!localStorageData?.name) {
-  //       navigate("/404");
-  //     } else {
-  //       setDataUser(localStorageData);
-  //     }
-  //   }, []);
+  // const [dataUser, setDataUser] = useState(null);
   const items = [
     getItem(
       "Danh sản phẩm",
@@ -41,13 +28,6 @@ const ManagePage = () => {
     ),
 
     getItem("Quản lý đơn đặt", "/manage/don-dat", <DesktopOutlined />),
-
-    // dataUser?.role === "admin" &&
-    //   getItem(
-    //     "Quản lý chủ sân",
-    //     "/manage/quan-ly-chu-san",
-    //     <ContainerOutlined />
-    //   ),
     getItem(
       "Quản lý doanh thu",
       "/manage/quan-ly-doanh-thu",

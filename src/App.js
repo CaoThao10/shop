@@ -16,6 +16,8 @@ import AllNewItem from "./pages/allColection/AllNewItem";
 import ManagePage from "./components/Manage/ManagePage";
 import ListItem from "./components/Manage/ListItem";
 import OderManage from "./components/Manage/OderManage";
+import RevenueManagement from "./components/Manage/RevenueManagement";
+import ProfilePage from "./pages/profile/ProfilePage";
 
 function App() {
   return (
@@ -29,6 +31,7 @@ function App() {
           <Route path="/party" element={<PartyPage></PartyPage>} />
           <Route path="/play" element={<PlayPage></PlayPage>} />
           <Route path="/all" element={<AllPage></AllPage>} />
+          <Route path="/profile" element={<ProfilePage></ProfilePage>} />
           {/* <Route path="/manage" element={<ManagePage></ManagePage>} /> */}
           <Route path="/detail" element={<DetailPage></DetailPage>} />
           <Route
@@ -40,6 +43,7 @@ function App() {
           <Route path="/manage" element={<ManagePage />}>
             <Route path="danh-sach-san-pham" element={<ListItem />} />
             <Route path="don-dat" element={<OderManage />} />
+            <Route path="quan-ly-doanh-thu" element={<RevenueManagement />} />
           </Route>
         </Routes>
       </AuthProvider>

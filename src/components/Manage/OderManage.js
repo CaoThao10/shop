@@ -62,6 +62,11 @@ const columns = [
     dataIndex: "date",
     key: "date",
   },
+  {
+    title: "Trạng thái",
+    dataIndex: "status",
+    key: "status",
+  },
 
   {
     title: "Action",
@@ -87,6 +92,7 @@ const data = [
     number: 10,
     img: "/dc1.jpeg",
     date: "10/02/2023",
+    status: "Đã giao",
     type: "developer",
   },
   {
@@ -97,6 +103,7 @@ const data = [
     price: 42,
     number: 10,
     date: "10/02/2023",
+    status: "Đã giao",
     type: ["loser"],
   },
   {
@@ -104,6 +111,7 @@ const data = [
     name: "Joe Black",
     img: "/dc2.jpeg",
     nameproduct: "acv",
+    status: "Đã giao",
     number: 10,
     price: 32,
     date: "10/02/2023",

@@ -1,19 +1,20 @@
+// src/firebase/firebase-config.js
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBQUxUJC4tIVmS6btk33t8_gClvriTUH4A",
-  authDomain: "wedding-3496e.firebaseapp.com",
-  projectId: "wedding-3496e",
-  storageBucket: "wedding-3496e.appspot.com",
-  messagingSenderId: "628680884970",
-  appId: "1:628680884970:web:d4e619e1cccd2636c14d93",
-  measurementId: "G-9YS5V7XKJ7",
+  apiKey: "AIzaSyDX3Yy8y9sAFvRidK18OahBo-5HCwA_Jlc",
+  authDomain: "shop-6d0ff.firebaseapp.com",
+  projectId: "shop-6d0ff",
+  storageBucket: "shop-6d0ff.appspot.com",
+  messagingSenderId: "415730030255",
+  appId: "1:415730030255:web:a213c250e57d86af7a265a",
+  measurementId: "G-BPYN17HZ89",
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const db = getFirestore(app);
