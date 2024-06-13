@@ -1,7 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ItemColection from "../../../components/itemColection/ItemColection";
+import { collection, query, limit, getDocs } from "firebase/firestore";
+import { db } from "../../../firebase/firebase-config";
 
 const AoDai = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const q = query(collection(db, "products"), limit(4));
+      const querySnapshot = await getDocs(q);
+      const productsArray = [];
+      querySnapshot.forEach((doc) => {
+        productsArray.push({ ...doc.data(), id: doc.id });
+      });
+      setProducts(productsArray);
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <div>
       <div className="my-20 mx-[200px] flex flex-col items-center justify-center ">
@@ -16,7 +34,7 @@ const AoDai = () => {
             >
               <line y1="1" x2="734" y2="1" stroke="black" strokeWidth="2" />
             </svg>
-            <h3 className="text-xl font-semibold">SẢN PHẨM NỔI BẬT</h3>
+            <h3 className="text-xl font-semibold">TẤT CẢ SẢN PHẨM</h3>
             <svg
               width="150"
               height="1"
@@ -30,30 +48,15 @@ const AoDai = () => {
           <div>THÁNG 6 - 2024</div>
         </div>
         <div className="grid grid-cols-4 gap-5 mt-10">
-          <ItemColection
-            note="Đầm cup ngực đính nơ tapta"
-            price="500.000đ"
-            link="/detail"
-            url="/dl1.jpeg"
-          />
-          <ItemColection
-            note="Đầm cup ngực đính nơ tapta"
-            price="500.000đ"
-            link="/detail"
-            url="/dc4.jpeg"
-          />
-          <ItemColection
-            note="Đầm cup ngực đính nơ tapta"
-            price="500.000đ"
-            link="/detail"
-            url="/dt4.jpg"
-          />
-          <ItemColection
-            note="Đầm cup ngực đính nơ tapta"
-            price="500.000đ"
-            link="/detail"
-            url="/5.jpeg"
-          />
+          {products.map((product) => (
+            <ItemColection
+              key={product.id}
+              note={product.name}
+              price={`${product.price}đ`}
+              link={`/detail/${product.id}`}
+              url={product.img}
+            />
+          ))}
         </div>
         <div className="mt-10">
           <button className="border border-gray-300 rounded-full px-2 py-1 ">

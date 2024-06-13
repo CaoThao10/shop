@@ -20,6 +20,7 @@ import {
   Spin,
   Table,
   Upload,
+  Checkbox,
 } from "antd";
 import {
   DeleteOutlined,
@@ -36,6 +37,7 @@ const ListItem = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [editData, setEditData] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchProducts();
@@ -117,11 +119,13 @@ const ListItem = () => {
         const imgRef = ref(storage, `images/${file.name}`);
         await uploadBytes(imgRef, file);
         imgURL = await getDownloadURL(imgRef);
+        console.log("File uploaded successfully. URL:", imgURL);
       }
 
       const productData = {
         ...values,
         img: imgURL,
+        createdAt: new Date(), // Add createdAt field
       };
 
       if (editData) {
@@ -140,6 +144,14 @@ const ListItem = () => {
       setEditData(null);
     }
   };
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const filteredData = data.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const columns = [
     {
@@ -181,6 +193,13 @@ const ListItem = () => {
       render: (type) => <span className="border border-green-200">{type}</span>,
     },
     {
+      title: "Size",
+      dataIndex: "size",
+      key: "size",
+      render: (size) =>
+        Array.isArray(size) ? size.join(", ") : "Không xác định",
+    },
+    {
       title: "Action",
       key: "action",
       render: (_, record) => (
@@ -210,6 +229,8 @@ const ListItem = () => {
                 className="outline-none px-2 py-1 border rounded-lg border-green-300"
                 type="text"
                 placeholder="Tìm kiếm"
+                value={searchTerm}
+                onChange={handleSearch}
               />
               <button
                 onClick={showModal}
@@ -220,7 +241,11 @@ const ListItem = () => {
             </div>
           </div>
           <div className="w-full">
-            <Table columns={columns} pagination={{}} dataSource={data} />
+            <Table
+              columns={columns}
+              pagination={{}}
+              dataSource={filteredData}
+            />
           </div>
         </div>
       </div>
@@ -284,6 +309,13 @@ const ListItem = () => {
                     </Radio.Group>
                   </Form.Item>
                 </div>
+                <Form.Item
+                  label="Size"
+                  name="size"
+                  rules={[{ required: true, message: "Vui lòng chọn kích cỡ" }]}
+                >
+                  <Checkbox.Group options={["S", "M", "L", "XL"]} />
+                </Form.Item>
                 <Form.Item
                   label="Hình ảnh"
                   name="img"

@@ -1,7 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ItemColection from "../../../components/itemColection/ItemColection";
+import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { db } from "../../../firebase/firebase-config";
 
 const Colection = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const q = query(
+        collection(db, "products"),
+        orderBy("createdAt", "desc"),
+        limit(4)
+      );
+      const querySnapshot = await getDocs(q);
+      const productsArray = [];
+      querySnapshot.forEach((doc) => {
+        productsArray.push({ ...doc.data(), id: doc.id });
+      });
+      setProducts(productsArray);
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <div>
       <div className="my-20 mx-[200px] flex flex-col items-center justify-center ">
@@ -16,7 +38,7 @@ const Colection = () => {
             >
               <line y1="1" x2="734" y2="1" stroke="black" strokeWidth="2" />
             </svg>
-            <h3 className="text-xl font-semibold">BỘ SƯU TẬP MỚI</h3>
+            <h3 className="text-xl font-semibold">SẢN PHẨM MỚI</h3>
             <svg
               width="150"
               height="1"
@@ -30,30 +52,15 @@ const Colection = () => {
           <div>SƯU TẬP HÈ 2024</div>
         </div>
         <div className="grid grid-cols-4 gap-5 mt-10 ">
-          <ItemColection
-            note="Đầm cup ngực đính nơ tapta"
-            price="500.000đ"
-            link="/detail"
-            url="/dc1.jpeg"
-          />
-          <ItemColection
-            note="Đầm cup ngực đính nơ tapta"
-            price="500.000đ"
-            link="/detail"
-            url="/dt2.webp"
-          />
-          <ItemColection
-            note="Đầm cup ngực đính nơ tapta"
-            price="500.000đ"
-            link="/detail"
-            url="/dt3.webp"
-          />
-          <ItemColection
-            note="Đầm cup ngực đính nơ tapta"
-            price="500.000đ"
-            link="/detail"
-            url="/dc3.jpeg"
-          />
+          {products.map((product) => (
+            <ItemColection
+              key={product.id}
+              note={product.name}
+              price={`${product.price}đ`}
+              link={`/detail/${product.id}`}
+              url={product.img}
+            />
+          ))}
         </div>
         <div className="mt-10">
           <button className="border border-gray-300 rounded-full px-2 py-1 ">

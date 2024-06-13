@@ -2,7 +2,7 @@ import React from "react";
 
 const Search = ({ title, url }) => {
   return (
-    <div className="mx-[200px] mt-[50px]">
+    <div className="mx-[200px] mt-[100px]">
       <div className="flex gap-1 items-center">
         <a href="/"> Trang chủ</a>
         <svg

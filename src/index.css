@@ -76,3 +76,50 @@
     background: transparent;
     z-index: 10;
 }
+
+.cart-wrapper:hover .cart-dropdown {
+    display: block;
+}
+
+.cart-dropdown {
+    display: none;
+}
+
+.cart-wrapper {
+    position: relative;
+}
+
+.cart-dropdown {
+    display: none;
+}
+
+.cart-wrapper:hover .cart-dropdown {
+    display: block;
+}
+
+.user-avatar-wrapper {
+    position: relative;
+}
+
+.user-avatar-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 40px;
+    right: 0;
+    width: 100%;
+    height: 20px;
+    background: transparent;
+    z-index: 10;
+}
+
+.cart-wrapper {
+    position: relative;
+}
+
+.cart-dropdown {
+    display: none;
+}
+
+.cart-wrapper .cart-dropdown {
+    display: block;
+}
