@@ -54,3 +54,25 @@
         display: none;
     }
 }
+
+.imge {
+    object-fit: cover !important;
+
+}
+
+.user-avatar-wrapper {
+    position: relative;
+}
+
+.user-avatar-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 40px;
+    /* Adjust based on your avatar size */
+    right: 0;
+    width: 100%;
+    height: 20px;
+    /* Adjust as necessary */
+    background: transparent;
+    z-index: 10;
+}

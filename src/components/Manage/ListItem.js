@@ -1,4 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "../../firebase/firebase-config";
 import {
   Button,
   Form,
@@ -9,102 +19,83 @@ import {
   Space,
   Spin,
   Table,
-  Tag,
-  TimePicker,
+  Upload,
 } from "antd";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 
-const columns = [
-  {
-    title: "Tên",
-    dataIndex: "name",
-    key: "name",
-    render: (text) => <a>{text}</a>,
-  },
-  {
-    title: "Ảnh",
-    dataIndex: "img",
-    key: "img",
-    render: (img) => (
-      <img
-        className="w-[50px] h-[80px] object-cover rounded-md"
-        src={img}
-        alt=""
-      />
-    ),
-  },
-  {
-    title: "Giá",
-    dataIndex: "price",
-    key: "price",
-  },
-  {
-    title: "Số lượng",
-    dataIndex: "number",
-    key: "number",
-  },
-  {
-    title: "Mô tả",
-    dataIndex: "description",
-    key: "description",
-  },
-  {
-    title: "Phân loại",
-    key: "type",
-    dataIndex: "type",
-    render: (type) => <span className=" border border-green-200">{type}</span>,
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: (_, record) => (
-      <Space size="middle">
-        <a className="text-green-500">
-          <EditOutlined />
-        </a>
-        <a className="text-red-500">
-          <DeleteOutlined />
-        </a>
-      </Space>
-    ),
-  },
-];
-const data = [
-  {
-    key: "1",
-    name: "John Brown",
-    price: 32,
-    number: 10,
-    img: "/dc1.jpeg",
-    description: "New York No. 1 Lake Park",
-    type: "developer",
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    img: "/dc3.jpeg",
-    price: 42,
-    number: 10,
-    description: "London No. 1 Lake Park",
-    type: ["loser"],
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    img: "/dc2.jpeg",
-    number: 10,
-    price: 32,
-    description: "Sydney No. 1 Lake Park",
-    type: ["teacher"],
-  },
-];
+const { confirm } = Modal;
 
 const ListItem = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const [data, setData] = useState([]);
   const [editData, setEditData] = useState(null);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    const querySnapshot = await getDocs(collection(db, "products"));
+    const products = [];
+    querySnapshot.forEach((doc) => {
+      products.push({ ...doc.data(), key: doc.id });
+    });
+    setData(products);
+  };
+
+  const handleEdit = (record) => {
+    setEditData(record);
+    form.setFieldsValue({
+      ...record,
+      img: record.img
+        ? [
+            {
+              uid: "-1",
+              name: "image.png",
+              status: "done",
+              url: record.img,
+            },
+          ]
+        : [],
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (key) => {
+    setLoading(true);
+    try {
+      await deleteDoc(doc(db, "products", key));
+      fetchProducts();
+    } catch (error) {
+      console.error("Failed to delete product: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showDeleteConfirm = (key) => {
+    confirm({
+      title: "Bạn có chắc chắn muốn xóa sản phẩm này?",
+      icon: <ExclamationCircleOutlined />,
+      content: "Hành động này không thể hoàn tác.",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk() {
+        handleDelete(key);
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  };
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -113,33 +104,106 @@ const ListItem = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
     form.resetFields();
+    setEditData(null);
   };
 
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      console.log("Form values: ", values);
-      // Here you can handle form submission, e.g., call an API to save the data
-      // After submission, reset form and close modal
+      let imgURL = editData?.img || "";
+
+      if (values.img && values.img.fileList && values.img.fileList.length > 0) {
+        const file = values.img.fileList[0].originFileObj;
+        const imgRef = ref(storage, `images/${file.name}`);
+        await uploadBytes(imgRef, file);
+        imgURL = await getDownloadURL(imgRef);
+      }
+
+      const productData = {
+        ...values,
+        img: imgURL,
+      };
+
+      if (editData) {
+        await updateDoc(doc(db, "products", editData.key), productData);
+      } else {
+        await addDoc(collection(db, "products"), productData);
+      }
+
       setIsModalOpen(false);
       form.resetFields();
+      fetchProducts();
     } catch (error) {
       console.error("Failed to submit form: ", error);
     } finally {
       setLoading(false);
+      setEditData(null);
     }
   };
 
-  const handleChange = (e) => {
-    // Handle file change here
-    console.log(e.target.files[0]);
-  };
+  const columns = [
+    {
+      title: "Tên",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Ảnh",
+      dataIndex: "img",
+      key: "img",
+      render: (img) => (
+        <img
+          className="w-[50px] h-[80px] object-cover rounded-md"
+          src={img}
+          alt="product"
+        />
+      ),
+    },
+    {
+      title: "Giá",
+      dataIndex: "price",
+      key: "price",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "number",
+      key: "number",
+    },
+    {
+      title: "Mô tả",
+      dataIndex: "description",
+      key: "description",
+    },
+    {
+      title: "Phân loại",
+      key: "type",
+      dataIndex: "type",
+      render: (type) => <span className="border border-green-200">{type}</span>,
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <p className="text-green-500" onClick={() => handleEdit(record)}>
+            <EditOutlined />
+          </p>
+          <p
+            className="text-red-500"
+            onClick={() => showDeleteConfirm(record.key)}
+          >
+            <DeleteOutlined />
+          </p>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-col bg-gray-100 h-[calc(100vh-60px)] w-full p-5">
         <div className="bg-white rounded-lg flex flex-col gap-5 p-5">
-          <div className=" w-full h-[50px] items-center flex justify-between">
+          <div className="w-full h-[50px] items-center flex justify-between">
             <span className="text-2xl">Danh sách sản phẩm</span>
             <div className="flex gap-x-3">
               <input
@@ -155,7 +219,7 @@ const ListItem = () => {
               </button>
             </div>
           </div>
-          <div className=" w-full">
+          <div className="w-full">
             <Table columns={columns} pagination={{}} dataSource={data} />
           </div>
         </div>
@@ -163,7 +227,7 @@ const ListItem = () => {
       <div className="modal">
         <Modal
           className="headerModal"
-          title="Tạo mới sân"
+          title={editData ? "Cập nhật sản phẩm" : "Tạo mới sản phẩm"}
           open={isModalOpen}
           onCancel={handleCancel}
           width={800}
@@ -175,7 +239,7 @@ const ListItem = () => {
               htmlType="submit"
               type="primary"
               form="form"
-              name="form"
+              key="submit"
               loading={loading}
             >
               {editData ? "Cập nhật" : "Tạo mới"}
@@ -187,6 +251,7 @@ const ListItem = () => {
               <Form
                 layout="vertical"
                 form={form}
+                id="form"
                 name="form"
                 onFinish={onFinish}
               >
@@ -195,19 +260,15 @@ const ListItem = () => {
                     label="Tên sản phẩm"
                     name="name"
                     rules={[
-                      { required: true, message: "Vui lòng nhập tên sân" },
+                      { required: true, message: "Vui lòng nhập tên sản phẩm" },
                     ]}
                   >
                     <Input />
                   </Form.Item>
-                  {/* <Form.Item label="Địa chỉ" name="address">
-                    <Input />
-                  </Form.Item> */}
                   <Form.Item label="Số lượng" name="number">
                     <Input />
                   </Form.Item>
-
-                  <Form.Item label="Giá " name="price">
+                  <Form.Item label="Giá" name="price">
                     <InputNumber className="w-full" />
                   </Form.Item>
                   <Form.Item label="Mô tả" name="description">
@@ -215,33 +276,30 @@ const ListItem = () => {
                   </Form.Item>
                 </div>
                 <div className="flex flex-col gap-1 my-4">
-                  <Form.Item label="Loại sân" name="type">
-                    <Radio.Group defaultValue={7}>
-                      <Radio value={1}>Đi tiệc</Radio>
-                      <Radio value={2}>Đi làm</Radio>
-                      <Radio value={2}>Đi chơi</Radio>
-                      {/* <Radio value={2}>Đi làm</Radio>
-                      <Radio value={2}>Đi làm</Radio> */}
+                  <Form.Item label="Loại" name="type">
+                    <Radio.Group>
+                      <Radio value="Đi tiệc">Đi tiệc</Radio>
+                      <Radio value="Đi làm">Đi làm</Radio>
+                      <Radio value="Đi chơi">Đi chơi</Radio>
                     </Radio.Group>
                   </Form.Item>
                 </div>
-                <input
-                  type="file"
-                  onChange={(e) => {
-                    handleChange(e);
-                  }}
-                />
-
-                {/* {url && (progressPercent === 0 || progressPercent === 100) && (
-                <img src={url} alt="" className="w-14 h-14 object-contain" />
-              )}
-              <Spin
-                spinning={
-                  progressPercent === 100 || progressPercent === 0
-                    ? false
-                    : true
-                }
-              ></Spin> */}
+                <Form.Item
+                  label="Hình ảnh"
+                  name="img"
+                  valuePropName="fileList"
+                  getValueFromEvent={(e) =>
+                    Array.isArray(e) ? e : e && e.fileList
+                  }
+                >
+                  <Upload
+                    listType="picture"
+                    beforeUpload={() => false} // Prevent auto upload
+                    maxCount={1}
+                  >
+                    <Button>Chọn hình ảnh</Button>
+                  </Upload>
+                </Form.Item>
               </Form>
             </div>
           </Spin>

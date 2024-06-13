@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { Button, Flex, Input, Menu, message } from "antd";
+import { Button, Flex, Image, Input, Menu, message } from "antd";
 import {
   // AppstoreOutlined,
   ContainerOutlined,
@@ -134,13 +134,30 @@ const ProfilePage = () => {
     setLoading(false);
   };
   return (
-    <div>
-      <div className="my-5">
-        <span className="text-2xl font-semibold text-green-400 mx-[200px] ">
+    <div className="mx-[200px]">
+      <div className="my-5 flex flex-col items-center w-[250px] gap-5">
+        <span className="text-2xl font-semibold text-green-400 flex items-center gap-3 ">
+          <a className="text-green-400" href="/">
+            <svg
+              width="11"
+              height="15"
+              viewBox="0 0 11 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M0 9L9 18L10.4 16.5L3 9L10.4 1.5L9 0L0 9Z"
+                fill="#4ade80"
+              />
+            </svg>
+          </a>
           Thông tin cá nhân
         </span>
+        <div className=" rounded-full overflow-hidden h-[100px] w-[100px]">
+          <img src="./dc1.jpeg" alt="" />
+        </div>
       </div>
-      <div className="grid grid-cols-4 gap-10 mx-[200px]">
+      <div className="grid grid-cols-4 gap-10 ">
         <div className="col-span-1">
           <div className="">
             <Menu
