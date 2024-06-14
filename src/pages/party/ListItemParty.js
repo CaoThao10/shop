@@ -1,27 +1,46 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ItemColection from "../../components/itemColection/ItemColection";
+import { Spin } from "antd";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase/firebase-config";
 
 const ListItemParty = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPartyItems();
+  }, []);
+
+  const fetchPartyItems = async () => {
+    const querySnapshot = await getDocs(collection(db, "products"));
+    const products = [];
+    querySnapshot.forEach((doc) => {
+      if (doc.data().type === "Đi tiệc") {
+        products.push({ ...doc.data(), key: doc.id });
+      }
+    });
+    setData(products);
+    setLoading(false);
+  };
+
   return (
-    <div className="mx-[200px] flex gap-3 mt-[50px]">
-      <ItemColection
-        note="Đầm cup ngực đính nơ tapta"
-        price="500.000đ"
-        link="/detail"
-        url="/dt2.webp"
-      ></ItemColection>
-      <ItemColection
-        note="Đầm cup ngực đính nơ tapta"
-        price="500.000đ"
-        link="/detail"
-        url="/dt4.jpg"
-      ></ItemColection>
-      <ItemColection
-        note="Đầm cup ngực đính nơ tapta"
-        price="500.000đ"
-        link="/detail"
-        url="/dt3.webp"
-      ></ItemColection>
+    <div className="mx-[200px] mt-[50px]">
+      {loading ? (
+        <Spin />
+      ) : (
+        <div className="flex flex-wrap gap-3">
+          {data.map((item) => (
+            <ItemColection
+              key={item.key}
+              link="/detail"
+              note={item.name}
+              price={`${item.price}đ`}
+              url={item.img}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

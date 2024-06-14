@@ -60,10 +60,7 @@ const AoDai = () => {
         </div>
         <div className="mt-10">
           <button className="border border-gray-300 rounded-full px-2 py-1 ">
-            <a
-              className="flex justify-center items-center gap-1"
-              href="/all-new"
-            >
+            <a className="flex justify-center items-center gap-1" href="/all">
               Xem thêm
               <svg
                 width="10"

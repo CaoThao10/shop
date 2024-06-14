@@ -15,7 +15,7 @@ const AllNewItem = () => {
       querySnapshot.forEach((doc) => {
         productsArray.push({ ...doc.data(), id: doc.id });
       });
-      setProducts(productsArray);
+      setProducts(productsArray.slice(0, 12)); // Giới hạn 12 sản phẩm
     };
 
     fetchProducts();

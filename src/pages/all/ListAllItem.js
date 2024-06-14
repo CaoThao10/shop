@@ -1,45 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ItemColection from "../../components/itemColection/ItemColection";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase/firebase-config";
+import { Spin } from "antd";
 
 const ListAllItem = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      const productsArray = [];
+      querySnapshot.forEach((doc) => {
+        productsArray.push({ ...doc.data(), id: doc.id });
+      });
+      setProducts(productsArray);
+      setLoading(false);
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
-    <div className="mx-[200px] grid grid-cols-4 gap-3 mt-[50px]">
-      <ItemColection
-        note="Đầm cup ngực đính nơ tapta"
-        price="500.000đ"
-        link="/detail"
-        url="/dc1.jpeg"
-      ></ItemColection>
-      <ItemColection
-        note="Đầm cup ngực đính nơ tapta"
-        price="500.000đ"
-        link="/detail"
-        url="/dc1.jpeg"
-      ></ItemColection>
-      <ItemColection
-        note="Đầm cup ngực đính nơ tapta"
-        price="500.000đ"
-        link="/detail"
-        url="/dc1.jpeg"
-      ></ItemColection>
-      <ItemColection
-        note="Đầm cup ngực đính nơ tapta"
-        price="500.000đ"
-        link="/detail"
-        url="/dc2.jpeg"
-      ></ItemColection>
-      <ItemColection
-        note="Đầm cup ngực đính nơ tapta"
-        price="500.000đ"
-        link="/detail"
-        url="/dc3.jpeg"
-      ></ItemColection>
-      <ItemColection
-        note="Đầm cup ngực đính nơ tapta"
-        price="500.000đ"
-        link="/detail"
-        url="/dc1.jpeg"
-      ></ItemColection>
+    <div className="mx-[200px] mt-[50px]">
+      {loading ? (
+        <Spin />
+      ) : (
+        <div className="grid grid-cols-4 gap-3">
+          {products.map((product) => (
+            <ItemColection
+              key={product.id}
+              link={`/detail/${product.id}`}
+              note={product.name}
+              price={`${product.price}đ`}
+              url={product.img}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
