@@ -1,18 +1,69 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../firebase/firebase-config";
+import { auth, db } from "../../firebase/firebase-config";
 import { signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { CartContext } from "../CartContext";
+
+// Các hàm để lấy giỏ hàng từ localStorage
+const getCartFromLocalStorage = () => {
+  const cart = localStorage.getItem("cart");
+  return cart ? JSON.parse(cart) : [];
+};
 
 const Heading = () => {
   const [user] = useAuthState(auth);
   const [menuVisible, setMenuVisible] = useState(false);
   const [cartVisible, setCartVisible] = useState(false);
-  const { cart } = useContext(CartContext);
+  const [cart, setCart] = useState([]);
+  const [avatar, setAvatar] = useState("/default-avatar.png");
   const navigate = useNavigate();
+  const cartRef = useRef();
+
+  useEffect(() => {
+    const savedCart = getCartFromLocalStorage();
+    setCart(savedCart);
+
+    const handleStorageChange = () => {
+      const updatedCart = getCartFromLocalStorage();
+      setCart(updatedCart);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (cartRef.current && !cartRef.current.contains(event.target)) {
+        setCartVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [cartRef]);
+
+  useEffect(() => {
+    const fetchUserAvatar = async () => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setAvatar(userData.avatar || "/default-avatar.png");
+        }
+      }
+    };
+
+    fetchUserAvatar();
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
@@ -60,7 +111,7 @@ const Heading = () => {
             >
               <img
                 className="h-[40px] w-[40px] rounded-full object-cover cursor-pointer"
-                src="/dl1.jpeg"
+                src={avatar}
                 alt="User Avatar"
               />
               {menuVisible && (
@@ -84,7 +135,7 @@ const Heading = () => {
                 </div>
               )}
             </div>
-            <div className="relative cart-wrapper">
+            <div className="relative cart-wrapper" ref={cartRef}>
               <svg
                 onClick={toggleCartVisible}
                 className="cursor-pointer"
@@ -110,14 +161,14 @@ const Heading = () => {
                 />
               </svg>
               {cart.length > 0 && (
-                <div className="absolute top-0 right-0 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-sm">
+                <div className="absolute top-0 right-0 bg-red-500 text-white rounded-full h-4 w-4 flex items-center justify-center text-sm">
                   {cart.length}
                 </div>
               )}
               {cartVisible && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white border border-gray-200 shadow-lg rounded-md cart-dropdown">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white border border-gray-200 shadow-lg rounded-md cart-dropdown max-h-[300px] overflow-y-auto">
                   {cart.length > 0 ? (
-                    cart.map((item) => (
+                    cart.slice(0, 3).map((item) => (
                       <div
                         key={item.id}
                         className="flex items-center p-2 border-b border-gray-200"
@@ -138,6 +189,11 @@ const Heading = () => {
                     ))
                   ) : (
                     <div className="p-2">Giỏ hàng trống</div>
+                  )}
+                  {cart.length > 3 && (
+                    <div className="p-2 text-center">
+                      <span>... và nhiều sản phẩm khác</span>
+                    </div>
                   )}
                   <div className="p-2 text-right">
                     <Link to="/cart" className="text-blue-500">

@@ -1,18 +1,34 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Rate, Radio, InputNumber, Collapse } from "antd";
 import { HeartOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase-config";
-import { CartContext } from "../../components/CartContext";
-// import { CartContext } from "../CartContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// Các hàm để lưu và lấy giỏ hàng từ localStorage
+const saveCartToLocalStorage = (cart) => {
+  localStorage.setItem("cart", JSON.stringify(cart));
+  window.dispatchEvent(new Event("storage")); // Thông báo thay đổi
+};
+
+const getCartFromLocalStorage = () => {
+  const cart = localStorage.getItem("cart");
+  return cart ? JSON.parse(cart) : [];
+};
 
 const DetailItem = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [size, setSize] = useState("S");
   const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useContext(CartContext);
+  const [cart, setCart] = useState([]);
+
+  useEffect(() => {
+    const savedCart = getCartFromLocalStorage();
+    setCart(savedCart);
+  }, []);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -52,14 +68,30 @@ const DetailItem = () => {
 
   const handleAddToCart = () => {
     if (product) {
-      addToCart({
+      const newItem = {
         id,
         name: product.name,
         img: product.img,
         price: product.price,
         size,
         quantity,
-      });
+      };
+
+      const existingItemIndex = cart.findIndex(
+        (item) => item.id === newItem.id && item.size === newItem.size
+      );
+
+      let updatedCart;
+      if (existingItemIndex !== -1) {
+        updatedCart = [...cart];
+        updatedCart[existingItemIndex].quantity += newItem.quantity;
+      } else {
+        updatedCart = [...cart, newItem];
+      }
+
+      setCart(updatedCart);
+      saveCartToLocalStorage(updatedCart);
+      toast.success("Thêm vào giỏ hàng thành công!");
     }
   };
 
@@ -82,6 +114,7 @@ const DetailItem = () => {
 
   return (
     <div className="mx-[200px] mt-[100px]">
+      <ToastContainer />
       <div className="my-10">
         <a className="flex items-center" href="/">
           <svg

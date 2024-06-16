@@ -1,24 +1,21 @@
-import React, { useEffect, useState } from "react";
-
-import { Button, Flex, Image, Input, Menu, message } from "antd";
+import React, { useState, useEffect } from "react";
+import { Button, Input, Menu, message, Upload } from "antd";
 import {
-  // AppstoreOutlined,
   ContainerOutlined,
   DesktopOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-// import routers from "../../routers";
-import { Route, Routes } from "react-router-dom";
-// import OrderList from "./OderList";
-import { doc, updateDoc } from "firebase/firestore";
-// import { db } from "../../firebase-app/firebase-auth";
+import { doc, updateDoc, setDoc, getDoc } from "firebase/firestore";
 import {
   getAuth,
   reauthenticateWithCredential,
   updatePassword,
 } from "firebase/auth";
-import { EmailAuthProvider } from "firebase/auth/cordova";
-import { db } from "../../firebase/firebase-config";
+import { EmailAuthProvider } from "firebase/auth";
+import { db, storage } from "../../firebase/firebase-config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import OrderList from "./OrderList";
+
 function getItem(label, key, icon, children, type) {
   return {
     key,
@@ -33,67 +30,95 @@ const ProfilePage = () => {
   const [current, setCurrent] = useState("thong-tin-ca-nhan");
   const [infoUser, setInfoUser] = useState({});
   const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    const localStorageData = JSON.parse(localStorage.getItem("user"));
-    setInfoUser(localStorageData);
-  }, []);
   const [changePasswords, setChangePasswords] = useState({});
+  const [avatar, setAvatar] = useState("");
+  const auth = getAuth();
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          setInfoUser(userDoc.data());
+          setAvatar(userDoc.data().avatar || "");
+        } else {
+          setInfoUser({
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName,
+          });
+        }
+      }
+    };
+    fetchUserInfo();
+  }, [auth]);
 
   const items = [
     getItem("Thông tin cá nhân", "thong-tin-ca-nhan", <UserOutlined />),
     getItem("Quản lý đơn hàng", "quan-ly-don-hang", <ContainerOutlined />),
     getItem("Đổi mật khẩu", "doi-mat-khau", <DesktopOutlined />),
   ];
-  const showContentMenu = (routes) => {
-    let result = null;
-    if (routes) {
-      result = routes.map((item, index) => {
-        return (
-          <Route key={index} path={item.path} element={item.Conponent()} />
-        );
-      });
-    }
-    return result;
-  };
+
   const onClick = (e) => {
     setCurrent(e.key);
   };
+
+  const handleUpload = async (file) => {
+    if (!file) return;
+    const storageRef = ref(storage, `avatars/${infoUser.uid}`);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+    setAvatar(downloadURL);
+    setInfoUser({ ...infoUser, avatar: downloadURL });
+  };
+
   const handleSubmit = async () => {
-    if (!infoUser?.id)
-      return message.error("Vui lòng đăng nhập để cập nhật thông tin");
-    if (!infoUser?.name) return message.error("Vui lòng nhập tên");
-    if (!infoUser?.email) return message.error("Vui lòng nhập email");
+    if (!infoUser?.uid) {
+      message.error("Vui lòng đăng nhập để cập nhật thông tin");
+      return;
+    }
+    if (!infoUser?.name || infoUser.name.trim() === "") {
+      message.error("Vui lòng nhập tên");
+      return;
+    }
+    if (!infoUser?.email || infoUser.email.trim() === "") {
+      message.error("Vui lòng nhập email");
+      return;
+    }
 
     try {
       setLoading(true);
-      const colRef = doc(db, "users", infoUser?.id);
-      await updateDoc(colRef, {
-        ...infoUser,
-      });
-      message.success("Cập nhật sân thành công");
+      const colRef = doc(db, "users", infoUser?.uid);
+      const docSnapshot = await getDoc(colRef);
+      if (docSnapshot.exists()) {
+        await updateDoc(colRef, {
+          ...infoUser,
+        });
+      } else {
+        await setDoc(colRef, {
+          ...infoUser,
+        });
+      }
+      message.success("Cập nhật thông tin thành công");
     } catch (error) {
       console.log("Error updating document: ", error);
+      message.error("Cập nhật thông tin thất bại");
     }
     setLoading(false);
   };
 
   const changePassword = async (currentPassword, newPassword) => {
     try {
-      // Xác minh mật khẩu hiện tại
-      const user = getAuth().currentUser;
+      const user = auth.currentUser;
       const credential = EmailAuthProvider.credential(
         user.email,
         currentPassword
       );
       await reauthenticateWithCredential(user, credential);
-
-      // Thay đổi mật khẩu mới
       await updatePassword(user, newPassword);
-
-      // Thông báo thành công
       return { success: true, message: "Đổi mật khẩu thành công!" };
     } catch (error) {
-      // Xử lý lỗi
       console.error("Error changing password: ", error);
       return {
         success: false,
@@ -103,16 +128,26 @@ const ProfilePage = () => {
   };
 
   const handleSubmitChangePass = async () => {
-    if (!changePasswords?.password)
-      return message.error("Vui lòng nhập mật khẩu cũ");
-    if (!changePasswords?.passwordNew)
-      return message.error("Vui lòng nhập mật khẩu mới");
-    if (!changePasswords?.rePasswordNew)
-      return message.error("Vui lòng nhập lại mật khẩu mới");
-    if (changePasswords?.passwordNew !== changePasswords?.rePasswordNew)
-      return message.error("Mật khẩu mới không trùng khớp");
-    if (!infoUser?.id)
-      return message.error("Vui lòng đăng nhập để cập nhật thông tin");
+    if (!changePasswords?.password) {
+      message.error("Vui lòng nhập mật khẩu cũ");
+      return;
+    }
+    if (!changePasswords?.passwordNew) {
+      message.error("Vui lòng nhập mật khẩu mới");
+      return;
+    }
+    if (!changePasswords?.rePasswordNew) {
+      message.error("Vui lòng nhập lại mật khẩu mới");
+      return;
+    }
+    if (changePasswords?.passwordNew !== changePasswords?.rePasswordNew) {
+      message.error("Mật khẩu mới không trùng khớp");
+      return;
+    }
+    if (!infoUser?.uid) {
+      message.error("Vui lòng đăng nhập để cập nhật thông tin");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -121,18 +156,16 @@ const ProfilePage = () => {
         changePasswords.passwordNew
       );
       if (result.success) {
-        // Thành công
-        message.success("Đổi mật khẩu thành công");
+        message.success(result.message);
       } else {
-        // Lỗi
-        message.error("Sai mật khẩu cũ!");
+        message.error(result.message);
       }
     } catch (error) {
-      // Xử lý lỗi
       message.error("Sai mật khẩu cũ!");
     }
     setLoading(false);
   };
+
   return (
     <div className="mx-[200px]">
       <div className="my-5 flex flex-col items-center w-[250px] gap-5">
@@ -153,22 +186,29 @@ const ProfilePage = () => {
           </a>
           Thông tin cá nhân
         </span>
-        <div className=" rounded-full overflow-hidden h-[100px] w-[100px]">
-          <img src="./dc1.jpeg" alt="" />
+        <div className="rounded-full overflow-hidden h-[100px] w-[100px]">
+          <img src={avatar || "/default-avatar.png"} alt="Avatar" />
         </div>
+        <Upload
+          showUploadList={false}
+          beforeUpload={(file) => {
+            handleUpload(file);
+            return false;
+          }}
+        >
+          <Button>Thay đổi ảnh đại diện</Button>
+        </Upload>
       </div>
       <div className="grid grid-cols-4 gap-10 ">
         <div className="col-span-1">
           <div className="">
             <Menu
-              // className="max-width"
               defaultSelectedKeys={["1"]}
               defaultOpenKeys={["sub1"]}
               mode="inline"
               onClick={onClick}
               items={items}
             />
-            {/* <Routes>{showContentMenu(routers)}</Routes> */}
           </div>
         </div>
         {current === "thong-tin-ca-nhan" ? (
@@ -179,7 +219,7 @@ const ProfilePage = () => {
                 <input
                   className="border w-full rounded-md outline-none py-1 px-2"
                   type="text"
-                  defaultValue={infoUser?.name}
+                  value={infoUser?.name || ""}
                   onChange={(e) => {
                     setInfoUser({ ...infoUser, name: e.target.value });
                   }}
@@ -190,7 +230,7 @@ const ProfilePage = () => {
                 <input
                   className="border w-full rounded-md outline-none py-1 px-2"
                   type="text"
-                  defaultValue={infoUser?.email}
+                  value={infoUser?.email || ""}
                   onChange={(e) => {
                     setInfoUser({ ...infoUser, email: e.target.value });
                   }}
@@ -203,7 +243,7 @@ const ProfilePage = () => {
                 <input
                   className="border w-full rounded-md outline-none py-1 px-2"
                   type="text"
-                  defaultValue={infoUser?.phone}
+                  value={infoUser?.phone || ""}
                   onChange={(e) => {
                     setInfoUser({ ...infoUser, phone: e.target.value });
                   }}
@@ -223,7 +263,6 @@ const ProfilePage = () => {
           <div className="col-span-3">
             <div className="flex flex-col w-full gap-y-3">
               <span className="">Mật khẩu cũ</span>
-
               <Input.Password
                 placeholder="Nhập mật khẩu cũ"
                 onChange={(e) => {
@@ -261,7 +300,6 @@ const ProfilePage = () => {
                   />
                 </div>
               </div>
-
               <Button
                 type="primary"
                 className="mt-4"
@@ -273,7 +311,9 @@ const ProfilePage = () => {
             </div>
           </div>
         ) : (
-          <div className="col-span-3">{/* <OrderList /> */}</div>
+          <div className="col-span-3">
+            <OrderList />
+          </div>
         )}
       </div>
     </div>

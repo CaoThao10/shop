@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebase/firebase-config";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../../firebase/firebase-config";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { setDoc, doc } from "firebase/firestore";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const SignInPage = () => {
+const SignUpPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -16,7 +18,7 @@ const SignInPage = () => {
     return re.test(email);
   };
 
-  const handleSignIn = async (event) => {
+  const handleSignUp = async (event) => {
     event.preventDefault();
     if (!validateEmail(email)) {
       toast.error("Email không hợp lệ.");
@@ -24,15 +26,33 @@ const SignInPage = () => {
     }
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      toast.success("Đăng nhập thành công!");
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // Cập nhật tên người dùng trong Firebase Authentication
+      await updateProfile(user, {
+        displayName: fullName,
+      });
+
+      // Lưu thông tin người dùng vào Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+        fullName: fullName,
+      });
+
+      toast.success("Đăng ký thành công!");
 
       // Chờ 2 giây trước khi điều hướng
       setTimeout(() => {
         navigate("/");
       }, 2000);
     } catch (error) {
-      console.error("Error signing in: ", error);
+      console.error("Error signing up: ", error);
       toast.error(error.message);
     }
     setIsLoading(false);
@@ -46,8 +66,23 @@ const SignInPage = () => {
         </a>
       </div>
       <div>
-        <form onSubmit={handleSignIn}>
+        <form onSubmit={handleSignUp}>
           <div className="flex flex-col gap-5 w-[350px]">
+            <div className="flex flex-col gap-3">
+              <label className="font-medium" htmlFor="fullName">
+                Họ tên
+              </label>
+              <input
+                className="border p-1 outline-none rounded-md"
+                type="text"
+                name="fullName"
+                id="fullName"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Nhập họ tên của bạn"
+                required
+              />
+            </div>
             <div className="flex flex-col gap-3">
               <label className="font-medium" htmlFor="email">
                 Email
@@ -60,6 +95,7 @@ const SignInPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Nhập email của bạn"
+                required
               />
             </div>
             <div className="flex flex-col gap-3">
@@ -74,6 +110,7 @@ const SignInPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Nhập mật khẩu của bạn"
+                required
               />
             </div>
             <div className="flex gap-3 mt-2">
@@ -84,13 +121,13 @@ const SignInPage = () => {
                 type="submit"
                 disabled={isLoading}
               >
-                {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+                {isLoading ? "Đang đăng ký..." : "Đăng ký"}
               </button>
             </div>
             <div className="flex gap-1">
-              <span>Bạn chưa có tài khoản?</span>
-              <a className="text-[#f74ce6]" href="/sign-up">
-                Đăng ký
+              <span>Bạn đã có tài khoản?</span>
+              <a className="text-[#f74ce6]" href="/sign-in">
+                Đăng nhập
               </a>
             </div>
           </div>
@@ -101,4 +138,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default SignUpPage;

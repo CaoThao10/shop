@@ -3,7 +3,10 @@ import { NavLink } from "react-router-dom";
 
 const ItemColection = ({ url, note, link, price }) => {
   return (
-    <NavLink to={link} className="border h-[380px] w-[280px] rounded-md">
+    <NavLink
+      to={link}
+      className="border h-[380px] w-[280px] rounded-md overflow-hidden"
+    >
       <div className="h-[320px] w-[280px] group p-1">
         <img
           className="h-[320px] w-[280px] object-cover rounded-md"
